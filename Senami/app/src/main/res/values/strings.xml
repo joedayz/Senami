@@ -5,4 +5,8 @@
     <string name="hello_world">Hola Chicos de Android!</string>
     <string name="action_settings">Configuración</string>
 
+
+    <!-- Menu label to fetch updated weather info from the server -->
+    <string name="action_refresh" translatable="false">Refresh</string>
+
 </resources>
