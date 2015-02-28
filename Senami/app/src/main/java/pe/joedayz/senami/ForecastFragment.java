@@ -1,9 +1,11 @@
 package pe.joedayz.senami;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,8 +37,10 @@ import java.util.List;
 /**
  * Encapsulates fetching the forecast and displaying it as a {@link ListView} layout.
  */
+/**
+ * Encapsulates fetching the forecast and displaying it as a {@link ListView} layout.
+ */
 public class ForecastFragment extends Fragment {
-
 
     private ArrayAdapter<String> mForecastAdapter;
 
@@ -63,7 +67,10 @@ public class ForecastFragment extends Fragment {
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
             FetchWeatherTask weatherTask = new FetchWeatherTask();
-            weatherTask.execute("94043");
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String location = prefs.getString(getString(R.string.pref_location_key),
+                    getString(R.string.pref_location_default));
+            weatherTask.execute(location);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -97,8 +104,6 @@ public class ForecastFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-
-
         // Get a reference to the ListView, and attach this adapter to it.
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
         listView.setAdapter(mForecastAdapter);
@@ -113,11 +118,8 @@ public class ForecastFragment extends Fragment {
             }
         });
 
-
-
         return rootView;
     }
-
 
     public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
@@ -197,10 +199,6 @@ public class ForecastFragment extends Fragment {
                 highAndLow = formatHighLows(high, low);
                 resultStrs[i] = day + " - " + description + " - " + highAndLow;
             }
-
-            for (String s : resultStrs) {
-                Log.v(LOG_TAG, "Forecast entry: " + s);
-            }
             return resultStrs;
 
         }
@@ -244,8 +242,6 @@ public class ForecastFragment extends Fragment {
 
                 URL url = new URL(builtUri.toString());
 
-                Log.v(LOG_TAG, "Built URI " + builtUri.toString());
-
                 // Create the request to OpenWeatherMap, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
@@ -273,8 +269,6 @@ public class ForecastFragment extends Fragment {
                     return null;
                 }
                 forecastJsonStr = buffer.toString();
-
-                Log.v(LOG_TAG, "Forecast string: " + forecastJsonStr);
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
                 // If the code didn't successfully get the weather data, there's no point in attemping
@@ -306,13 +300,13 @@ public class ForecastFragment extends Fragment {
 
         @Override
         protected void onPostExecute(String[] result) {
-           if(result!=null){
-               mForecastAdapter.clear();
-               for(String dayForecastStr : result){
-                   mForecastAdapter.add(dayForecastStr);
-               }
-           }
-
+            if (result != null) {
+                mForecastAdapter.clear();
+                for(String dayForecastStr : result) {
+                    mForecastAdapter.add(dayForecastStr);
+                }
+                // New data is back from the server.  Hooray!
+            }
         }
     }
 }
