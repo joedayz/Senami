@@ -37,6 +37,9 @@
                 android:value="pe.joedayz.senami.MainActivity" />
         </activity>
 
+        <provider
+            android:authorities="pe.joedayz.senami"
+            android:name=".data.WeatherProvider" />
 
     </application>
 
