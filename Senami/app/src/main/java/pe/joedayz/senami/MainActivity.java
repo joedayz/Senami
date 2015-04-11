@@ -1,10 +1,8 @@
 package pe.joedayz.senami;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -17,7 +15,6 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.v(LOG_TAG, "en onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
@@ -25,24 +22,12 @@ public class MainActivity extends ActionBarActivity {
                     .add(R.id.container, new ForecastFragment())
                     .commit();
         }
-
-
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
@@ -52,13 +37,14 @@ public class MainActivity extends ActionBarActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
 
         if (id == R.id.action_map) {
-
             openPreferredLocationInMap();
             return true;
         }
@@ -66,58 +52,22 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void openPreferredLocationInMap() {
+        String location = Utility.getPreferredLocation(this);
 
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-
-        String location = sharedPrefs.getString(getString(R.string.pref_location_key)
-                , getString(R.string.pref_location_default));
-
-        //Usar el URI para mostrar una ubicacion en el map
-        //Intents implicitos
-        Uri geolocation = Uri.parse("geo:0,0?").buildUpon()
+        // Using the URI scheme for showing a location found on a map.  This super-handy
+        // intent can is detailed in the "Common Intents" page of Android's developer site:
+        // http://developer.android.com/guide/components/intents-common.html#Maps
+        Uri geoLocation = Uri.parse("geo:0,0?").buildUpon()
                 .appendQueryParameter("q", location)
                 .build();
 
         Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(geolocation);
+        intent.setData(geoLocation);
 
-        if(intent.resolveActivity(getPackageManager())!=null){
+        if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
-        }else{
-            Log.d(LOG_TAG, "No se pudo llamar a " + location + ", no hay app instalado");
+        } else {
+            Log.d(LOG_TAG, "Couldn't call " + location + ", no receiving apps installed!");
         }
-
-
-
-    }
-
-    @Override
-    protected void onStart() {
-        Log.v(LOG_TAG, "en onStart");
-        super.onStart();
-    }
-
-    @Override
-    protected void onResume() {
-        Log.v(LOG_TAG, "en onResume");
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        Log.v(LOG_TAG, "en onPause");
-        super.onPause();
-    }
-
-    @Override
-    protected void onStop() {
-        Log.v(LOG_TAG, "en onStop");
-        super.onStop();
-    }
-
-    @Override
-    protected void onDestroy() {
-        Log.v(LOG_TAG, "en onDestroy");
-        super.onDestroy();
     }
 }
