@@ -1,10 +1,10 @@
 package pe.joedayz.senami;
 
+import android.support.v7.app.ActionBarActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,7 +14,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 
 public class DetailActivity extends ActionBarActivity {
 
@@ -29,7 +28,6 @@ public class DetailActivity extends ActionBarActivity {
         }
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -43,10 +41,13 @@ public class DetailActivity extends ActionBarActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -55,11 +56,10 @@ public class DetailActivity extends ActionBarActivity {
      */
     public static class DetailFragment extends Fragment {
 
-        private static final String LOG_CAT = DetailFragment.class.getSimpleName();
+        private static final String LOG_TAG = DetailFragment.class.getSimpleName();
 
-        private static final String FORECAST_SHARE_HASHTAG = "#SenamiApp";
+        private static final String FORECAST_SHARE_HASHTAG = " #SunshineApp";
         private String mForecastStr;
-
 
         public DetailFragment() {
             setHasOptionsMenu(true);
@@ -68,12 +68,16 @@ public class DetailActivity extends ActionBarActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
+
             View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
 
             // The detail Activity called via intent.  Inspect the intent for forecast data.
             Intent intent = getActivity().getIntent();
             if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
                 mForecastStr = intent.getStringExtra(Intent.EXTRA_TEXT);
+            }
+
+            if (null != mForecastStr) {
                 ((TextView) rootView.findViewById(R.id.detail_text))
                         .setText(mForecastStr);
             }
@@ -81,40 +85,34 @@ public class DetailActivity extends ActionBarActivity {
             return rootView;
         }
 
-
         @Override
         public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-            //inflate the menu; add items to action bar
+            // Inflate the menu; this adds items to the action bar if it is present.
             inflater.inflate(R.menu.detailfragment, menu);
 
-            //recuperar el share menu item
+            // Retrieve the share menu item
             MenuItem menuItem = menu.findItem(R.id.action_share);
 
-            //Get the provider
+            // Get the provider and hold onto it to set/change the share intent.
             ShareActionProvider mShareActionProvider =
                     (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
 
-            if(mShareActionProvider!=null){
+            // Attach an intent to this ShareActionProvider.  You can update this at any time,
+            // like when the user selects a new piece of data they might like to share.
+            if (mShareActionProvider != null ) {
                 mShareActionProvider.setShareIntent(createShareForecastIntent());
-            }else{
-                Log.d(LOG_CAT, "Share action provider is null?");
+            } else {
+                Log.d(LOG_TAG, "Share Action Provider is null?");
             }
-
         }
 
         private Intent createShareForecastIntent() {
-            Intent shareIntent  = new Intent(Intent.ACTION_SEND);
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
             shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, mForecastStr + FORECAST_SHARE_HASHTAG);
+            shareIntent.putExtra(Intent.EXTRA_TEXT,
+                    mForecastStr + FORECAST_SHARE_HASHTAG);
             return shareIntent;
-
         }
     }
-
-
-
-
-
-
 }
