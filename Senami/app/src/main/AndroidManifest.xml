@@ -39,7 +39,10 @@
 
         <provider
             android:authorities="pe.joedayz.senami"
-            android:name=".data.WeatherProvider" />
+            android:name=".data.WeatherProvider"
+            android:enabled="true"
+            android:exported="true"/>
+
 
     </application>
 
